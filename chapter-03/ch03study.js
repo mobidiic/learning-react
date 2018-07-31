@@ -191,3 +191,168 @@ var schools ={
 
 var schoolArray = Object.keys(schools).map(key => ({name : key, wins: schools[key]}));
 console.log(schoolArray);
+
+
+
+//배열을 다른 타입으로
+var ages = [21,18,42,40,52,61,23,34];
+
+var maxAge = ages.reduce((max, age) => {
+  console.log(`${age} > ${max} = ${age>max}`);
+  return (age>max)? age : max
+}, 0)
+
+console.log('maxAge', maxAge)
+
+
+//배열을 객체로
+var colors = [
+  { id: '-xekare',
+    title : 'red',
+    rating : 3},
+  { id: '-jbsod',
+    title : 'greed',
+    rating: 5},
+  { id: '-scnjdl',
+    title : 'blue',
+    rating : 1}
+];
+
+var hashColors = colors.reduce((hash, {id, title, rating})=> {hash[id]= {title, rating}
+return hash}, {});
+//왜 리턴을 다음줄에 써야 하는가?
+
+console.log(hashColors);
+
+
+//배열을 다른 배열로
+
+var colors= ['red', 'green', 'blue', 'red', 'green'];
+
+var distinctColors = colors.reduce(
+  (distinct, color) => (distinct.indexOf(color)!== -1)? distinct : [...distinct, color], [] );
+
+console.log(distinctColors);
+
+
+
+//커링함수 예제
+
+const getFakeMembers = count => new Promise((resolves, rejects) => {
+    const api = `https://api.randomuser.me/?nat=US&results=${count}`;
+    const request = new XMLHttpRequest();
+    request.open('GET', api);
+    request.onload =() =>
+      (request.status === 200) ?
+      resolves(JSON.parse(request.response).results) :
+      reject(Error(request.statusText));
+    request.onerror = (err) => rejects(err);
+    request.send();
+  })
+
+
+var userLogs = userName => message => console.log(`${userName} -> ${message}`);
+var log = userLogs("mobidiic");
+log("attempted to load 20 fake members");
+getFakeMembers(20).then(
+  members => log(`successfully loaded ${members.length} members`),
+  error => log('encountered an error')
+)
+
+
+
+//재귀함수
+
+var countdown = (value, fn, delay=1000) => {
+  fn(value)
+  return (value>0) ? setTimeout(()=> countdown(value-1, fn), delay) : value;
+}
+
+var log = value => console.log(value);
+
+countdown(10, log);
+
+
+
+const dan = {
+  type : "person",
+  data : {
+    gender : "male",
+    info : {
+      id : 22,
+      fullname : {
+        first : "Dan",
+        last : "Deacon"
+      }
+    }
+  }
+}
+
+const deepPick = (fields, object={}) => {
+  const [first, ...remaining] = fields.split(".")
+  return (remaining.length) ?
+      deepPick(remaining.join("."), object[first]) :
+      object[first]
+}
+
+console.log( deepPick("data.info.fullname.first", dan) );
+
+
+
+//합성 - chaining
+
+var template = "hh:mm:ss"
+var dtime = new Date();
+var clockTime = template.replace("hh", dtime.getHours()).replace("mm", dtime.getMinutes()).replace("ss", dtime.getSeconds())
+clockTime;
+
+
+var both = compose(civilianHours, appendAMPM);
+
+const compose = (...fns) => (arg) => fns.reduce( (composed, f)=> f(composed), arg )
+//어렵다 이거
+
+
+//선언적으로 시계 만들기
+
+const oneSecond = () => 1000
+const getCurrentTime = () => new Date();
+const clear = () => console.clear();
+const log = message => console.log(message);
+
+const abstractClockTime = date => ({
+  hours : date.getHours(),
+  minutes : date.getMinutes(),
+  seconds : date.getSeconds()
+})
+
+const civilianHours = clockTime =>({
+  ...clockTime,
+  hours : (clockTime.hours>12) ? (clockTime.hours-12) : clockTime.hours
+})
+
+const appendAMPM = clockTime => ({
+  ...clockTime,
+  ampm : (clockTime.hours>12) ? "PM" : "AM"
+})
+
+const display = target => time => target(time)
+
+const formatClock = format => time =>
+  format.replace("hh", time.hours).replace("mm", time.minutes).replace("ss", time.seconds).replace('tt', time.ampm)
+
+const prependZero = key => clockTime => ({
+  ...clockTime,
+  [key] : (clockTime[key]<10) ? "0"+clockTime[key] : clockTime[key]
+})
+
+const convertToCivilianTime = clockTime => compose(appendAMPM, civilianHours)(clockTime)
+
+const doubleDigit = civilianTime => compose(prependZero("hours"), prependZero("minutes"), prependZero("seconds"))(civilianTime)
+
+const startTicking = () => setInterval(compose(
+  clear, getCurrentTime, abstractClockTime, convertToCivilianTime, doubleDigit, formatClock("hh:mm:ss tt"), display(log)
+), oneSecond())
+
+
+startTicking();

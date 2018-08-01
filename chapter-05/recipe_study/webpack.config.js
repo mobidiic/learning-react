@@ -3,10 +3,14 @@ var path = require("path")
 
 process.noDeprecation = true
 
-module.exports = {
+module.exports = env => {
+    const no_dist = (env && env.dist === "false");
+
+return {
+  mode: "production"
   entry: "./src/index.js",
   output: {
-      path: path.join(__dirname, 'dist', 'assets'),
+      path: '/Users/bagsihyeon/Documents/GitHub/learning-react/chapter-05/recipe_study/dist/assets',
       filename: "bundle.js",
       sourceMapFilename: 'bundle.map'
   },

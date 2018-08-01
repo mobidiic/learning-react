@@ -67,6 +67,14 @@
 
   ReactDOM.render(list, document.getElementById('react-container'))
 
+  const IngredientsList = props => React.createElement("ul", {className : "ingredients"}, props.item.map((ingredient, i) => React.createElement("li", {key : i}, ingredient)))
+
+
+  //props 의 디스트럭쳐링
+  const IngredientsList = ({items}) => React.createElement("ul", {className : "ingredients"}, items.map((ingredient, i) => React.createElement("li", {key : i}, ingredient)))
+
+
+  //팩토리를 쓰면 첫번째 인자가 밖의 팩토리의 속성으로 나오는 거 밖에 차이가 없???
 </script>
 </body>
 </html>
